@@ -4,35 +4,15 @@ on:
     branches: [ "dev" ]
   workflow_dispatch:
     inputs:
-      release:
-        description: 'Push a new release'
-        required: false
-        default: 'false'
       version:
         description: 'Version'
         required: false
-        default: 'v1.5-23010100'
+        default: '20230428'
 
 jobs:
-  release:
-    needs: Build-on-Ubuntu
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v3
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
 
-      - name: Version
-        if: github.event.inputs.release == 'true' && github.event.inputs.release != 'false' && !cancelled()
-        run: |
-          ARTIFACT_DIR=$(ls); for name in ${ARTIFACT_DIR}; do chmod +x ${name}/*; touch -c -d "2009-01-01 00:00:00" ${name}/*; zip -9 -jy "${name}.zip" ${name}/*.erofs > /dev/null 2>&1; done;
-          ls -lahR
-
-
-
-  Build-on-Ubuntu:
-    runs-on: ubuntu-latest
     env:
       TZ: UTC-8
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"

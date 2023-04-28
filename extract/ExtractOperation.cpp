@@ -47,7 +47,7 @@ namespace skkk {
 		int rc = RET_EXTRACT_DONE;
 		strTrim(outDir);
 		if (outDir.empty()) {
-			configDir = "./config";
+			configDir = "./000_DNA";
 			outDir = "./" + imgBaseName;
 		} else {
 #if !(defined(_WIN32) || defined(__CYGWIN__))
@@ -64,11 +64,11 @@ namespace skkk {
 				LOGCE("Not allow extracting to root: '%s'", outDir.c_str());
 				rc = RET_EXTRACT_OUTDIR_ROOT;
 			} else {
-				configDir = outDir + "/config";
+				configDir = outDir + "/000_DNA";
 				outDir = outDir + "/" + imgBaseName;
 			}
 #else
-			configDir = outDir + "/config";
+			configDir = outDir + "/000_DNA";
 			outDir = outDir + "/" + imgBaseName;
 #endif
 		}

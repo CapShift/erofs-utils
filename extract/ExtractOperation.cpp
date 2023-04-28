@@ -162,8 +162,8 @@ namespace skkk {
 	}
 
 	void ExtractOperation::extractFsConfigAndSeLabel() const {
-		string fsConfigPath = configDir + "/" + imgBaseName + "_fs_config";
-		string fsSeContextPath = configDir + "/" + imgBaseName + "_file_contexts";
+		string fsConfigPath = configDir + "/" + imgBaseName + "_fsconfig.txt";
+		string fsSeContextPath = configDir + "/" + imgBaseName + "_contexts.txt";
 		FILE *fsConfigFile = fopen(fsConfigPath.c_str(), "wb");
 		FILE *seContextFile = fopen(fsSeContextPath.c_str(), "wb");
 		const char *_imgBaseName = imgBaseName.c_str();

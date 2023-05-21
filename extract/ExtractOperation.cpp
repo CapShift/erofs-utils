@@ -167,15 +167,15 @@ namespace skkk {
 		FILE *fsConfigFile = fopen(fsConfigPath.c_str(), "wb");
 		FILE *seContextFile = fopen(fsSeContextPath.c_str(), "wb");
 		const char *_imgBaseName = imgBaseName.c_str();
-		LOGCI(BROWN "fs_config|file_contexts" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
+		LOGCI(BROWN "fsconfig|contexts" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
 		if (fsConfigFile && seContextFile) {
 			for_each(erofsNodes.begin(), erofsNodes.end(),
 					 [&fsConfigFile, &seContextFile, &_imgBaseName](auto *eNode) {
 						 eNode->writeFsConfigAndSeContext2File(fsConfigFile, seContextFile, _imgBaseName);
 					 });
-			LOGCI(BROWN "fs_config|files_context" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
+			LOGCI(BROWN "fsconfig|contexts" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
 		} else
-			LOGCE(BROWN "fs_config|files_context" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
+			LOGCE(BROWN "fsconfig|contexts" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
 		if (fsConfigFile) fclose(fsConfigFile);
 		if (seContextFile) fclose(seContextFile);
 	}

@@ -49,7 +49,7 @@ namespace skkk {
 		int rc = RET_EXTRACT_DONE;
 		strTrim(outDir);
 		if (outDir.empty()) {
-			configDir = "./config";
+			configDir = "./000_DNA";
 			outDir = "./" + imgBaseName;
 		} else {
 			if (outDir.size() > 1 &&
@@ -72,11 +72,11 @@ namespace skkk {
 				LOGCE("Not allow extracting to root: '%s'", outDir.c_str());
 				rc = RET_EXTRACT_OUTDIR_ROOT;
 			} else {
-				configDir = outDir + "/config";
+				configDir = outDir + "/000_DNA";
 				outDir = outDir + "/" + imgBaseName;
 			}
 #else
-			configDir = outDir + "/config";
+			configDir = outDir + "/000_DNA";
 			outDir = outDir + "/" + imgBaseName;
 #endif
 		}
@@ -194,15 +194,15 @@ namespace skkk {
 	}
 
 	void ExtractOperation::extractFsConfigAndSelinuxLabelAndFsOptions() const {
-		string fsConfigPath = configDir + "/" + imgBaseName + "_fs_config";
-		string fsSelinuxLabelsPath = configDir + "/" + imgBaseName + "_file_contexts";
-		string fsOptionPath = configDir + "/" + imgBaseName + "_fs_options";
+		string fsConfigPath = configDir + "/" + imgBaseName + "_fsconfig.txt";
+		string fsSelinuxLabelsPath = configDir + "/" + imgBaseName + "_contexts.txt";
+		string fsOptionPath = configDir + "/" + imgBaseName + "_fsoption.txt";
 		FILE *fsConfigFile = fopen(fsConfigPath.c_str(), "wb");
 		FILE *selinuxLabelsFile = fopen(fsSelinuxLabelsPath.c_str(), "wb");
 		FILE *fsOptionFile = nullptr;
 		char uuid[37] = {0};
 		const char *mountPoint = imgBaseName.c_str();
-		LOGCI(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
+		LOGCI(BROWN "fsconfig|contexts|fsoption" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
 		if (fsConfigFile && selinuxLabelsFile) {
 			for (auto &eNode: erofsNodes) {
 				if (otherPathsInRootDir.count(eNode->getPath()) > 0) continue;
@@ -233,9 +233,9 @@ namespace skkk {
 							outDir.c_str());
 				}
 			}
-			LOGCI(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
+			LOGCI(BROWN "fsconfig|contexts|fsoption" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
 		} else
-			LOGCE(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
+			LOGCE(BROWN "fsconfig|contexts|fsoption" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
 		if (fsConfigFile) fclose(fsConfigFile);
 		if (selinuxLabelsFile) fclose(selinuxLabelsFile);
 		if (fsOptionFile) fclose(fsOptionFile);

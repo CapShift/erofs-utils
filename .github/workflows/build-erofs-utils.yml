@@ -1,7 +1,7 @@
 name: Build erofs-utils
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dna" ]
   workflow_dispatch:
     inputs:
       release:
@@ -11,7 +11,7 @@ on:
       version:
         description: 'Version'
         required: false
-        default: 'v1.7-23092300'
+        default: '1.7-23092300-D.N.A'
 
 jobs:
   release:

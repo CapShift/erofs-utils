@@ -40,21 +40,25 @@ static inline void usage() {
 	char buf[1536] = {0};
 	snprintf(buf, 1536,
 			 BROWN "usage: [options]" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-h, --help" COLOR_NONE "              " BROWN "Display this help and exit" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-i, --image=[FILE]" COLOR_NONE "      " BROWN "Image file" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "--offset=#" COLOR_NONE "              " BROWN "skip # bytes at the beginning of IMAGE" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-p" COLOR_NONE "                      " BROWN "Print all entrys" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-P, --print=X" COLOR_NONE "           " BROWN "Print the target of path X" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-x" COLOR_NONE "                      " BROWN "Extract all items" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-X, --extract=X" COLOR_NONE "         " BROWN "Extract the target of path X" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-c, --config=[FILE]" COLOR_NONE "     " BROWN "Target of config" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-r" COLOR_NONE "                      " BROWN "When using config, recurse directories" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-s" COLOR_NONE "                      " BROWN "Silent mode, Don't show progress" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-f, --overwrite" COLOR_NONE "         " BROWN "[" GREEN2_BOLD "default: skip" COLOR_NONE BROWN "] overwrite files that already exist" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-T#" COLOR_NONE "                     " BROWN "[" GREEN2_BOLD "1-%u" COLOR_NONE BROWN "] Use # threads, default: -T0, is " GREEN2_BOLD "%u" COLOR_NONE COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "--only-cfg" COLOR_NONE "              " BROWN "Only extract fs_config|file_contexts|fs_options" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-o, --outdir=X" COLOR_NONE "          " BROWN "Output dir" COLOR_NONE "\n"
-			 "  " GREEN2_BOLD "-V, --version" COLOR_NONE "           " BROWN "Print the version info" COLOR_NONE "\n",
+			 "  " GREEN2_BOLD "-h, --help" COLOR_NONE "               " BROWN "Display this help and exit" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-i, --image=[FILE]" COLOR_NONE "       " BROWN "Image file" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "--offset=#" COLOR_NONE "               " BROWN "skip # bytes at the beginning of IMAGE" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-p" COLOR_NONE "                       " BROWN "Print all entrys" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-P, --print=X" COLOR_NONE "            " BROWN "Print the target of path X" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-x" COLOR_NONE "                       " BROWN "Extract all items" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-X, --extract=X" COLOR_NONE "          " BROWN "Extract the target of path X" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-c, --config=[FILE]" COLOR_NONE "      " BROWN "Target of config" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-r" COLOR_NONE "                       " BROWN "When using config, recurse directories" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-s" COLOR_NONE "                       " BROWN "Silent mode, Don't show progress" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-f, --overwrite" COLOR_NONE "          " BROWN "[" GREEN2_BOLD "default: skip" COLOR_NONE BROWN "] overwrite files that already exist" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-T#" COLOR_NONE "                      " BROWN "[" GREEN2_BOLD "1-%u" COLOR_NONE BROWN "] Use # threads, default: -T0, is " GREEN2_BOLD "%u" COLOR_NONE COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "--only-cfg" COLOR_NONE "               " BROWN "Only extract fsconfig|contexts|features" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-o, --outdir=X" COLOR_NONE "           " BROWN "Output dir" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-g, --cfgdir=X" COLOR_NONE "           " BROWN "Config dir" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-z, --fsc=_fsconfig.txt" COLOR_NONE "  " BROWN "Config" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-t, --ctx=_contexts.txt" COLOR_NONE "  " BROWN "Config" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-n, --inf=_features.txt" COLOR_NONE "  " BROWN "Config" COLOR_NONE "\n"
+			 "  " GREEN2_BOLD "-V, --version" COLOR_NONE "            " BROWN "Print the version info" COLOR_NONE "\n",
 			 eo->limitHardwareConcurrency,
 			 eo->hardwareConcurrency
 	);
@@ -80,6 +84,10 @@ static struct option arg_options[] = {
 	{"image",     required_argument, nullptr, 'i'},
 	{"offset",    required_argument, nullptr, 2},
 	{"outdir",    required_argument, nullptr, 'o'},
+	{"cfgdir",    required_argument, nullptr, 'g'},
+	{"fsc",       required_argument, nullptr, 'z'},
+	{"ctx",       required_argument, nullptr, 't'},
+	{"inf",       required_argument, nullptr, 'n'},
 	{"print",     required_argument, nullptr, 'P'},
 	{"overwrite", no_argument,       nullptr, 'f'},
 	{"extract",   required_argument, nullptr, 'X'},
@@ -92,7 +100,7 @@ static int parseAndCheckExtractCfg(int argc, char **argv) {
 	int opt;
 	int rc = RET_EXTRACT_CONFIG_FAIL;
 	bool enterParseOpt = false;
-	while ((opt = getopt_long(argc, argv, "hi:psxfrc:P:T:o:X:V", arg_options, nullptr)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hi:psxfrc:P:T:o:g:z:t:n:X:V", arg_options, nullptr)) != -1) {
 		enterParseOpt = true;
 		switch (opt) {
 			case 'h':
@@ -112,6 +120,30 @@ static int parseAndCheckExtractCfg(int argc, char **argv) {
 					eo->setOutDir(optarg);
 				}
 				LOGCD("outDir=%s", eo->getOutDir().c_str());
+				break;
+			case 'g':
+				if (optarg) {
+					eo->setConfigDir(optarg);
+				}
+				LOGCD("configDir=%s", eo->getConfigDir().c_str());
+				break;
+			case 'z':
+				if (optarg) {
+					eo->setFscName(optarg);
+				}
+				LOGCD("fscName=%s", eo->getFscName().c_str());
+				break;
+			case 't':
+				if (optarg) {
+					eo->setCtxName(optarg);
+				}
+				LOGCD("ctxName=%s", eo->getCtxName().c_str());
+				break;
+			case 'n':
+				if (optarg) {
+					eo->setInfName(optarg);
+				}
+				LOGCD("infName=%s", eo->getInfName().c_str());
 				break;
 			case 'p':
 				eo->isPrintAllNode = true;

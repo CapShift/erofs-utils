@@ -29,6 +29,18 @@ namespace skkk {
 		}
 	}
 
+	void ExtractOperation::setFscName(const char *path) {
+		fscName = path;
+	}
+
+	void ExtractOperation::setCtxName(const char *path) {
+		ctxName = path;
+	}
+
+	void ExtractOperation::setInfName(const char *path) {
+		infName = path;
+	}
+
 	void ExtractOperation::erofsOperationExit() {
 		for_each(erofsNodes.begin(), erofsNodes.end(), [](auto *eNode) { delete eNode; });
 		erofsNodes.clear();
@@ -43,11 +55,33 @@ namespace skkk {
 
 	void ExtractOperation::setOutDir(const char *path) { outDir = path; }
 
+	void ExtractOperation::setConfigDir(const char *path) { configDir = path; }
+
+    int ExtractOperation::initFscName() {
+		strTrim(fscName);
+		if (fscName.empty()) {
+			fscName = "_fsconfig.txt";
+		}
+	}
+
+    int ExtractOperation::initCtxName() {
+		strTrim(ctxName);
+		if (ctxName.empty()) {
+			ctxName = "_contexts.txt";
+		}
+	}
+
+    int ExtractOperation::initInfName() {
+		strTrim(infName);
+		if (infName.empty()) {
+			infName = "_features.txt";
+		}
+	}
+
 	int ExtractOperation::initOutDir() {
 		int rc = RET_EXTRACT_DONE;
 		strTrim(outDir);
 		if (outDir.empty()) {
-			configDir = "./config";
 			outDir = "./" + imgBaseName;
 		} else {
 			if (outDir.size() > 1 &&
@@ -70,11 +104,9 @@ namespace skkk {
 				LOGCE("Not allow extracting to root: '%s'", outDir.c_str());
 				rc = RET_EXTRACT_OUTDIR_ROOT;
 			} else {
-				configDir = outDir + "/config";
 				outDir = outDir + "/" + imgBaseName;
 			}
 #else
-			configDir = outDir + "/config";
 			outDir = outDir + "/" + imgBaseName;
 #endif
 		}
@@ -83,6 +115,41 @@ namespace skkk {
 #endif
 		return rc;
 	}
+
+	int ExtractOperation::initConfigDir() {
+		int rc = RET_EXTRACT_DONE;
+		strTrim(configDir);
+		if (configDir.empty()) {
+			configDir = "./000_DNA";
+		} else {
+			if (configDir.size() > 1 &&
+				(configDir.at(configDir.size() - 1) == '/' ||
+				 configDir.at(configDir.size() - 1) == '\\'))
+				configDir.pop_back();
+			if (configDir.size() >= PATH_MAX) {
+				LOGE("configDir directory name too long!");
+				return RET_EXTRACT_OUTDIR_ROOT;
+			}
+#if !(defined(_WIN32) || defined(__CYGWIN__))
+			const char *oDir = configDir.c_str();
+			auto oSize = configDir.size();
+			// check dir is root: "/","//","///",...
+			bool isRoot = true;
+			for (int i = 0; i < oSize; i++) {
+				isRoot = oDir[i] == '/';
+			}
+			if (isRoot) {
+				LOGCE("Not allow extracting to root: '%s'", configDir.c_str());
+				rc = RET_EXTRACT_OUTDIR_ROOT;
+			}
+#endif
+		}
+#if defined(_WIN32) || defined(__CYGWIN__)
+		handleWinFilePath(configDir);
+#endif
+		return rc;
+	}
+
 
 	int ExtractOperation::createExtractOutDir() const {
 		int rc = RET_EXTRACT_DONE, err;
@@ -111,6 +178,12 @@ namespace skkk {
 	const string &ExtractOperation::getOutDir() const { return outDir; }
 
 	const string &ExtractOperation::getConfDir() const { return configDir; }
+
+    const string &ExtractOperation::getFscName() const { return fscName; }
+
+    const string &ExtractOperation::getCtxName() const { return ctxName; }
+
+    const string &ExtractOperation::getInfName() const { return infName; }
 
 	int ExtractOperation::initAllErofsNode() const { return initErofsNodeByRoot(); }
 
@@ -191,15 +264,16 @@ namespace skkk {
 	}
 
 	void ExtractOperation::extractFsConfigAndSelinuxLabelAndFsOptions() const {
-		string fsConfigPath = configDir + "/" + imgBaseName + "_fs_config";
-		string fsSelinuxLabelsPath = configDir + "/" + imgBaseName + "_file_contexts";
-		string fsOptionPath = configDir + "/" + imgBaseName + "_fs_options";
+		string fsConfigPath = configDir + "/" + imgBaseName + fscName;
+		string fsSelinuxLabelsPath = configDir + "/" + imgBaseName + ctxName;
+		string fsOptionPath = configDir + "/" + imgBaseName + infName;
+
 		FILE *fsConfigFile = fopen(fsConfigPath.c_str(), "wb");
 		FILE *selinuxLabelsFile = fopen(fsSelinuxLabelsPath.c_str(), "wb");
 		FILE *mkfsOptionFile = nullptr;
 		char uuid[37] = {0};
 		const char *mountPoint = imgBaseName.c_str();
-		LOGCI(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
+		LOGCI(BROWN "fsconfig|contexts|features" LOG_RESET_COLOR "  " GREEN2_BOLD "saving..." LOG_RESET_COLOR);
 		if (fsConfigFile && selinuxLabelsFile) {
 			for (auto &eNode: erofsNodes) {
 				if (otherPathsInRootDir.count(eNode->getPath()) > 0) continue;
@@ -233,9 +307,9 @@ namespace skkk {
 							outDir.c_str());
 				}
 			}
-			LOGCI(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
+			LOGCI(BROWN "fsconfig|contexts|features" LOG_RESET_COLOR "  " GREEN2_BOLD "done." LOG_RESET_COLOR);
 		} else
-			LOGCE(BROWN "fs_config|file_contexts|fs_options" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
+			LOGCE(BROWN "fsconfig|contexts|features" LOG_RESET_COLOR "  " RED2_BOLD "fail!" LOG_RESET_COLOR);
 		if (fsConfigFile) fclose(fsConfigFile);
 		if (selinuxLabelsFile) fclose(selinuxLabelsFile);
 		if (mkfsOptionFile) fclose(mkfsOptionFile);

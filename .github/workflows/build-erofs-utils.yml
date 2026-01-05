@@ -1,7 +1,7 @@
 name: Build erofs-utils
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "tnt"t
   workflow_dispatch:
     inputs:
       release:

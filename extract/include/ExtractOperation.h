@@ -33,6 +33,9 @@ namespace skkk {
 			string imgBaseName;
 			string outDir;
 			string configDir;
+			string fscName;
+			string ctxName;
+			string infName;
 
 		private:
 			ExtractOperation() = default;
@@ -81,13 +84,35 @@ namespace skkk {
 
 			void setImgPath(const char *path);
 
+            void setFscName(const char *path);
+
+            int initFscName();
+
+            void setCtxName(const char *path);
+
+            int initCtxName();
+
+            void setInfName(const char *path);
+
+            int initInfName();
+
 			const string &getImgPath() const;
 
 			const string &getImgBaseName() const;
 
+			const string &getFscName() const;
+
+			const string &getCtxName() const;
+
+			const string &getInfName() const;
+
 			void setOutDir(const char *path);
 
 			int initOutDir();
+
+			void setConfigDir(const char *path);
+
+			int initConfigDir();
 
 			int createExtractOutDir() const;
 
